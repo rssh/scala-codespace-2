@@ -41,8 +41,8 @@ val fib1 = fib _
 //    def apply(x:Int)=fib(x)
 //  }
 
-def maxF(from:Int, to:Int, f:Int=>Int):Int = {
-
-}
+// maxF(from:Int, to:Int, f:Int=>Int):Int = {
+//
+//}
 
 fib(3)
