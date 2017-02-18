@@ -45,25 +45,13 @@ sealed trait MyList[+X] {
   }
 
   // TODO: make effective
-  def reverse():MyList[X] =
-  {
+  def reverse(): MyList[X] = this match {
     case MyCons(h,t) => t.reverse.append(h)
     case MyNil => MyNil
   }
 
 
 }
-
-// (1,2,3,4,5)
-//  filter(x % 2 == 0)
-
-// val x = (1::(2::(3::(4::5))))
-// val y = x.tail
-
-
-
-// 3::Nil  Nil.::(3)
-//        X=Nothing  Y=Int  => List[Int]
 
 case class MyCons[X](head:X,tail:MyList[X]) extends MyList[X]
 {
@@ -82,6 +70,16 @@ case object MyNil extends MyList[Nothing]
 
 }
 
+// (1,2,3,4,5)
+//  filter(x % 2 == 0)
+
+// val x = (1::(2::(3::(4::5))))
+// val y = x.tail
+
+
+
+// 3::Nil  Nil.::(3)
+//        X=Nothing  Y=Int  => List[Int]
 
 
 

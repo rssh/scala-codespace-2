@@ -84,3 +84,4 @@ def myFun[X](l:MyList[X]):Int =
     case MyNil  => 0
   }
 }
+
