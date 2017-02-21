@@ -81,3 +81,5 @@ Can.getItems
 
 Can.getItems
 Can.list
+
+MyList.dropWhile(MyList(1,2,3))( _ < 3)

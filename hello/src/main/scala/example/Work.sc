@@ -85,3 +85,9 @@ def myFun[X](l:MyList[X]):Int =
   }
 }
 
+val map = Map("a" -> 1, "b" -> 2, "c" -> 3)
+
+map("a")
+//map("x")
+map.get("x")
+val newMap = map + ("a" -> 4)
