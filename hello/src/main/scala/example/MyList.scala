@@ -4,10 +4,17 @@ package example
 
 // Any x:   Nothing <: X
 
+//
 
+// covariance:      X <: Y => F[X] <: F[Y]
+// contravariance:  X <: Y => F[X] >: F[Y]
+//  inv = cov + contr:  X != Y => not (F[X] >: F[Y], F[X] <: F[Y])
 sealed trait MyList[+X] {
 
+
   def isEmpty(): Boolean
+
+
 
   def ::[Y >: X](x: Y): MyList[Y] = MyCons(x, this)
 
@@ -22,12 +29,15 @@ sealed trait MyList[+X] {
 
   def tail: MyList[X]
 
+
   def map[Y](f: X => Y): MyList[Y] = {
     this match {
       case MyCons(h, t) => f(h) :: t.map(f)
       case MyNil => MyNil
     }
   }
+
+
 
   def foldRight[S](z: S)(op: (X, S) => S): S =
     this match {
@@ -44,6 +54,10 @@ sealed trait MyList[+X] {
       }
   }
 
+  // (l) <:  (l append x)
+  // tail(l) <: l
+
+
   // TODO: make effective
 
   def reverse(): MyList[X] = {
@@ -56,19 +70,7 @@ sealed trait MyList[+X] {
     rev1(MyNil, this)
   }
 
-
 }
-
-// (1,2,3,4,5)
-//  filter(x % 2 == 0)
-
-// val x = (1::(2::(3::(4::5))))
-// val y = x.tail
-
-
-
-// 3::Nil  Nil.::(3)
-//        X=Nothing  Y=Int  => List[Int]
 
 case class MyCons[X](head:X,tail:MyList[X]) extends MyList[X]
 {
@@ -87,6 +89,49 @@ case object MyNil extends MyList[Nothing]
 
 }
 
+object MyList
+{
+
+  def apply[T](xs: T* ): MyList[T] =
+    {
+      //val (a,b) = a->b
+      println(xs.getClass)
+
+
+      xs match {
+        case +: (head, tail) => MyCons(head, apply(tail: _*) )
+        case _ => MyNil
+      }
+
+      val xs1 = "t" +: xs
+
+      val unapplyResult = +: . unapply(xs)
+      if (unapplyResult.isDefined) {
+        val Some((head, tail)) = unapplyResult
+        MyCons(head,apply(tail: _*))
+      } else {
+        MyNil
+      }
+
+
+    }
+
+}
+
+
+
+
+
+// (1,2,3,4,5)
+//  filter(x % 2 == 0)
+
+// val x = (1::(2::(3::(4::5))))
+// val y = x.tail
+
+
+
+// 3::Nil  Nil.::(3)
+//        X=Nothing  Y=Int  => List[Int]
 
 
 

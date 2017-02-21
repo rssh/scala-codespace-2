@@ -3,7 +3,7 @@ package example
 /**
   * Created by rssh on 2/16/17.
   */
-object LunStas {
+object LuhnStas {
 
   val n = "4561261212345467"
   n.toCharArray.map(_.asDigit).zipWithIndex.map{

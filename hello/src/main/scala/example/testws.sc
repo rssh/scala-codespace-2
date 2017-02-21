@@ -1,4 +1,4 @@
-import example.Hello
+import example.{Hello, MyCons, MyList, MyNil}
 
 import scala.annotation.tailrec
 
@@ -36,6 +36,32 @@ def fib(x:Int):Int =
 }
 
 val fib1 = fib _
+
+MyList(1,2,3)
+
+val myArr = Array(1,2,3).toSeq
+
+def fun(x: Int*): String = {
+  x match {
+    case head :: tail => "Ok"
+    case _ => "not ok"
+  }
+}
+
+fun(1,2,3)
+
+MyCons(1, MyNil)
+
+1::(2::(3::(4::MyNil)))
+
+
+
+MyCons(1,MyNil) match {
+  case 1 MyCons MyNil => "not ok"
+  case MyNil => "A"
+}
+
+
 
 // val fib1 = new Function1{
 //    def apply(x:Int)=fib(x)
