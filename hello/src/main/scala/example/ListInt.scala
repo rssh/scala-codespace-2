@@ -45,10 +45,15 @@ sealed trait MyList[+X] {
   }
 
   // TODO: make effective
-  def reverse():MyList[X] =
-  {
-    case MyCons(h,t) => t.reverse.append(h)
-    case MyNil => MyNil
+
+  def reverse(): MyList[X] = {
+    def rev1(result: MyList[X], remain: MyList[X]): MyList[X] = {
+      remain match {
+        case MyNil => result
+        case MyCons(h, t) => rev1(h :: result, t)
+      }
+    }
+    rev1(MyNil, this)
   }
 
 
