@@ -37,6 +37,8 @@ class GarbageCan[-T <: Item] {
 
 //  f |> g = (f andThen g)
 //
+//
+//
 //  f': A' => B'  A' >: A,  B' <: B [   <: f
 
 //
