@@ -58,8 +58,6 @@ sealed trait MyList[+X] {
   // tail(l) <: l
 
 
-  // TODO: make effective
-
   def reverse(): MyList[X] = {
     def rev1(result: MyList[X], remain: MyList[X]): MyList[X] = {
       remain match {
@@ -91,6 +89,12 @@ case object MyNil extends MyList[Nothing]
 
 object MyList
 {
+  def dropWhile[T](xs: MyList[T])(p: T => Boolean): MyList[T] = {
+    xs match {
+      case MyCons(head,tail) if p(head) => dropWhile(tail)( p)
+      case _ => xs
+    }
+  }
 
   def apply[T](xs: T* ): MyList[T] =
     {
