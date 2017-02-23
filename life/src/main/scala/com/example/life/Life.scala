@@ -1,9 +1,7 @@
 package com.example.life
 
 case class Point(x:Int,y:Int)
-{
-  def applyOffset(dx:Int,dy:Int)=Point(x+dx,y+dy)
-}
+
 
 trait Life {
 
@@ -18,15 +16,24 @@ trait Life {
 
     /**
       * iterate all
-      * @param f
+      * @param f: function to apply
       * @return
       */
     def map(f:Point=>Boolean):Field
 
+    def foreach(f:(Point,Boolean)=>Unit):Unit
+
+    def xMax:Int
+
+    def yMax:Int
+
+    def applyOffset(p:Point, dx:Int,dy:Int)=
+       Point((p.x+dx) % xMax, (p.y+dy)%yMax )
+
     def nextAction(p:Point): Boolean =
     {
       val n = neighbourOffsets.map{ case (dx,dy) =>
-          p.applyOffset(dx,dy)
+          applyOffset(p,dx,dy)
         }.count(isAlive)
 
       (isAlive(p), n) match {
@@ -36,13 +43,11 @@ trait Life {
       }
     }
 
-
   }
 
   def step(field:Field):Field = field.map(field.nextAction)
 
-
-  var current: Field
+  def initField(maxX:Int, maxY:Int, liveCells:Set[Point]):Field
 
 
   val neighbourOffsets = Set(
