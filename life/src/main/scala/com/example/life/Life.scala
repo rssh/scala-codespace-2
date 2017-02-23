@@ -16,20 +16,30 @@ trait Life {
       */
     def isAlive(p:Point):Boolean
 
+    /**
+      * iterate all
+      * @param f
+      * @return
+      */
+    def map(f:Point=>Boolean):Field
+
     def nextAction(p:Point): Boolean =
     {
       val n = neighbourOffsets.map{ case (dx,dy) =>
           p.applyOffset(dx,dy)
-        }.filter(isAlive(_)).size
+        }.count(isAlive)
 
-      
-
-      ???
+      (isAlive(p), n) match {
+        case (false,3) => true
+        case (true,x) if (x==2 || x==3) => true
+        case _ => false
+      }
     }
+
 
   }
 
-  def step(field:Field):Field = ???
+  def step(field:Field):Field = field.map(field.nextAction)
 
 
   var current: Field
