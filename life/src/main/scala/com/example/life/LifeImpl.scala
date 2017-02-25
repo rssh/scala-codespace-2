@@ -39,8 +39,6 @@ class LifeImpl extends Life {
               (p,isAlive(p))
        }
      )
-     all.foreach(f.tupled)
-    }
 
     def printState(): Unit = {
 
