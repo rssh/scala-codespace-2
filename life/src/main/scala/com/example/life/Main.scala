@@ -12,7 +12,7 @@ object Main {
     var i = 0
     while(i < 5) {
       state = life.step(state)
-      Console.print(state)
+      state.printState()
       Console.in.read()
       i += 1
     }

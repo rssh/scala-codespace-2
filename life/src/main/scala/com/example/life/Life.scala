@@ -5,8 +5,6 @@ case class Point(x:Int,y:Int)
 
 trait Life {
 
-
-
   trait Field {
 
     /**
@@ -28,7 +26,7 @@ trait Life {
     def yMax:Int
 
     def applyOffset(p:Point, dx:Int,dy:Int)=
-       Point((p.x+dx) % xMax, (p.y+dy)%yMax )
+       Point((p.x + dx + xMax) % xMax, (p.y + dy + yMax)%yMax )
 
     def nextAction(p:Point): Boolean =
     {
@@ -42,6 +40,8 @@ trait Life {
         case _ => false
       }
     }
+
+    def printState(): Unit
 
   }
 

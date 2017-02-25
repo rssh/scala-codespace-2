@@ -8,7 +8,7 @@ class LifeImpl extends Life {
 
 
     /**
-      * Assume that x & y can be bigger that actual fiedl
+      * Assume that x & y can be bigger that actual field
       */
     override def isAlive(p: Point): Boolean =
       v.contains(p)
@@ -27,22 +27,30 @@ class LifeImpl extends Life {
       new FieldImpl(out,xMax,yMax)
     }
 
-     def neighbors(p:Point):Set[Point] =
-     {
+    def neighbors(p:Point):Set[Point] =
       neighbourOffsets.map(d => applyOffset(p, d._1,d._2) )
-     }
 
-     override def foreach(f: (Point,Boolean) => Unit): Unit =
-     {
-       val all = (0 until xMax).flatMap(
-         x => (0 until yMax) map {
-           y => val p = Point(x, y)
-                (p,isAlive(p))
-         }
-       )
-       all.foreach(f.tupled)
-     }
 
+    override def foreach(f: (Point,Boolean) => Unit): Unit =
+    {
+     val all = (0 until xMax).flatMap(
+       x => (0 until yMax) map {
+         y => val p = Point(x, y)
+              (p,isAlive(p))
+       }
+     )
+     all.foreach(f.tupled)
+    }
+
+    def printState(): Unit = {
+
+      def printCell(p: Point, isAlive: Boolean): Unit = {
+        if (isAlive) print("X") else print("O")
+        if (p.y == yMax - 1) println()
+      }
+
+      foreach(printCell)
+    }
 
   }
 
@@ -55,6 +63,5 @@ class LifeImpl extends Life {
     ),"exists fields")
     FieldImpl(liveCells,maxX,maxY)
   }
-
 
 }
