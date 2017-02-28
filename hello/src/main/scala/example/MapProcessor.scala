@@ -15,7 +15,7 @@ object MapProcessor {
     for(x <- v) yield x.getOrElse(filler)
   }
 
-  
+
   def fillMatrixGaps[V](v:Vector[Vector[Option[V]]],aggregate: Vector[V]=>V) : Vector[Vector[V]] = {
     v map (x => fillColumnGaps(x,aggregate))
   }

@@ -13,12 +13,32 @@ import scala.annotation.tailrec
 //  inv = cov + contr:  X != Y => not (F[X] >: F[Y], F[X] <: F[Y])
 sealed trait MyList[+X] {
 
+  thisList =>
 
   def isEmpty(): Boolean
 
 
 
   def ::[Y >: X](x: Y): MyList[Y] = MyCons(x, this)
+
+  class MyListWithFilter(p: X => Boolean)
+  {
+
+    def map[Y](f: X => Y): MyList[Y]  =
+    {
+      thisList.filter(p).map(f)
+    }
+
+    def filter(p1: X => Boolean) =
+      new MyListWithFilter(x => p(x) && p1(x))
+
+  }
+
+  // for(x <- l if p) yield f(x)
+  // l.withFilter(p).map(x => f(x))
+
+  def withFilter(predicate: X => Boolean) =
+     new MyListWithFilter(predicate)
 
   def filter(predicate: X => Boolean): MyList[X] =
     this match {
@@ -96,6 +116,20 @@ sealed trait MyList[+X] {
     rev1(MyNil, this)
   }
 
+
+
+  def doWhile(p: Unit => Boolean)(f: X=>Unit): Unit =
+  {
+    this match {
+      case MyCons(h,t) => if (p(h)) {
+                             f(h)
+                             t.doWhile(p)(f)
+                          } else MyNil
+      case MyNil => MyNil
+    }
+  }
+
+
 }
 
 case class MyCons[X](head:X,tail:MyList[X]) extends MyList[X]
@@ -123,6 +157,7 @@ object MyList
       case _ => xs
     }
   }
+
 
   def apply[T](xs: T* ): MyList[T] =
     {
