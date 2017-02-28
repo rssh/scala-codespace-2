@@ -20,19 +20,23 @@ class LifeImpl extends Life {
       * @param f : function to apply
       * @return
       */
-    override def map(f: (Point) => Boolean): Field =
+    override def filter(f: (Point) => Boolean): Field =
     {
       val toSee = v.flatMap(this.neighbors) union v
       val out = toSee.filter(f)
       new FieldImpl(out,xMax,yMax)
     }
 
-    def neighbors(p:Point):Set[Point] =
-      neighbourOffsets.map(d => applyOffset(p, d._1,d._2) )
+    def neighbors(p:Point):Set[Point] = {
+     // neighbourOffsets.map(d => applyOffset(p, d._1, d._2))
+     // neighbourOffsets.map{ case (dx,dy) => applyOffset(p, dx, dy))
+     for((dx,dy) <- neighbourOffsets) yield applyOffset(p,dx,dy)
+    }
 
 
-    override def foreach(f: (Point,Boolean) => Unit): Unit = {
+    override def foreach(f: Point => Unit): Unit = {
 
+      /*
       val all = (0 until xMax).flatMap(
         x => (0 until yMax) map {
           y =>
@@ -40,7 +44,13 @@ class LifeImpl extends Life {
             (p, isAlive(p))
         }
       )
-      all.foreach(f.tupled)
+      */
+      for {x <- 0 until xMax
+           y <- 0 until yMax
+      } {
+        f(Point(x,y))
+      }
+
 
     }
 
@@ -52,7 +62,13 @@ class LifeImpl extends Life {
       }
 
       val sb = new StringBuilder
-      foreach(printCell(_,_,sb))
+
+      //this.foreach((p,f) => printCell(p,f,sb))
+      for(p <- this) {
+        printCell(p,isAlive(p),sb)
+      }
+
+
       sb.toString()
     }
 

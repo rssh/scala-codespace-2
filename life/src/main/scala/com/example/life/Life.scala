@@ -17,9 +17,9 @@ trait Life {
       * @param f: function to apply
       * @return
       */
-    def map(f:Point=>Boolean):Field
+    def filter(f:Point=>Boolean):Field
 
-    def foreach(f:(Point,Boolean)=>Unit):Unit
+    def foreach(f:Point=>Unit):Unit
 
     def xMax:Int
 
@@ -48,7 +48,9 @@ trait Life {
 
   }
 
-  def step(field:Field):Field = field.map(field.nextAction)
+  def step(field:Field):Field =
+          field.filter(field.nextAction)
+
 
   def initField(maxX:Int, maxY:Int, liveCells:Set[Point]):Field
 
