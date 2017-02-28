@@ -1,6 +1,26 @@
 package example
 
 object MapProcessor {
+
+  //
+  //
+  //
+  def fillColumnGaps[V](v:Vector[Option[V]], aggregate:Vector[V]=>V):Vector[V] =
+  {
+    //val nonEmpty: Vector[V] = v.filter(_.isDefined).map(_.get)
+    //val filler = aggregate(nonEmpty)
+    //v map (_.getOrElse(filler))
+    val nonEmpty = for(x <- v if x.isDefined ) yield x.get
+    val filler = aggregate(nonEmpty)
+    for(x <- v) yield x.getOrElse(filler)
+  }
+
+  
+  def fillMatrixGaps[V](v:Vector[Vector[Option[V]]],aggregate: Vector[V]=>V) : Vector[Vector[V]] = {
+    v map (x => fillColumnGaps(x,aggregate))
+  }
+
+
   def processMap[K,V: AverageableSeq](map: Map[K, Seq[Option[V]]]) = {
     val n = map.values.head.length
     // make a sequence of sequences of all defined values

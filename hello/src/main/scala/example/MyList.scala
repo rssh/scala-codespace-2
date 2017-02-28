@@ -1,5 +1,7 @@
 package example
 
+import scala.annotation.tailrec
+
 //  A <: B  =>  List[A] <: List[B]
 
 // Any x:   Nothing <: X
@@ -29,7 +31,8 @@ sealed trait MyList[+X] {
 
   def tail: MyList[X]
 
-
+  //@tailrec
+  //TODO: think about @tailrec
   def map[Y](f: X => Y): MyList[Y] = {
     this match {
       case MyCons(h, t) => f(h) :: t.map(f)
@@ -38,6 +41,21 @@ sealed trait MyList[+X] {
   }
 
 
+  def flatMap[Y](f: X => MyList[Y]): MyList[Y] =
+  {
+
+    //TODO:
+    def flatMapT(f: X=>MyList[Y], restIn: MyList[X], out: MyList[Y]): MyList[Y] = {
+      restIn match {
+        case MyNil => MyNil
+        case MyCons(h, t) =>
+          val withH = out.appendList(f(h))
+          withH.appendList(flatMapT(f,t,out))
+      }
+    }
+
+    flatMapT(f,this,MyNil)
+  }
 
   def foldRight[S](z: S)(op: (X, S) => S): S =
     this match {
@@ -52,6 +70,16 @@ sealed trait MyList[+X] {
         case MyNil => x :: MyNil
         case MyCons(h, t) => h :: t.append(x)
       }
+  }
+
+  def appendList[Y >: X](x: MyList[Y]): MyList[Y] =
+  {
+    this match {
+      case MyNil => x
+        // BAD !!!!
+        //TODO implement effective
+      case MyCons(h,t) => append(h).appendList(t)
+    }
   }
 
   // (l) <:  (l append x)
