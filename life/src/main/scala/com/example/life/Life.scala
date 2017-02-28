@@ -41,7 +41,10 @@ trait Life {
       }
     }
 
-    def printState(): Unit
+    def stringState(): String
+
+    def printState(): Unit =
+      print(stringState)
 
   }
 

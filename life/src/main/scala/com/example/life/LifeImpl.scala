@@ -31,23 +31,29 @@ class LifeImpl extends Life {
       neighbourOffsets.map(d => applyOffset(p, d._1,d._2) )
 
 
-    override def foreach(f: (Point,Boolean) => Unit): Unit =
-    {
-     val all = (0 until xMax).flatMap(
-       x => (0 until yMax) map {
-         y => val p = Point(x, y)
-              (p,isAlive(p))
-       }
-     )
+    override def foreach(f: (Point,Boolean) => Unit): Unit = {
 
-    def printState(): Unit = {
+      val all = (0 until xMax).flatMap(
+        x => (0 until yMax) map {
+          y =>
+            val p = Point(x, y)
+            (p, isAlive(p))
+        }
+      )
+      all.foreach(f.tupled)
 
-      def printCell(p: Point, isAlive: Boolean): Unit = {
-        if (isAlive) print("X") else print("O")
-        if (p.y == yMax - 1) println()
+    }
+
+    def stringState(): String = {
+      println(s"printState: v=${v}")
+      def printCell(p: Point, isAlive: Boolean, sb:StringBuilder): Unit = {
+        sb.append(if (isAlive) "X" else " ")
+        if (p.y == yMax - 1) sb.append("\n")
       }
 
-      foreach(printCell)
+      val sb = new StringBuilder
+      foreach(printCell(_,_,sb))
+      sb.toString()
     }
 
   }
