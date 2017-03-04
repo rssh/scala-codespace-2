@@ -32,4 +32,13 @@ def myObject() = new {
 // see - firstName is aviable in IDE context=menu
 myObject().firstName
 
+class A1
+{
+  type B
+}
+
+val a1 = new A1 { def x:Int = 3 }
+
+val a2 = new A1 {  type B = Int }
+val a3 = new A1 {  type B = String }
 
