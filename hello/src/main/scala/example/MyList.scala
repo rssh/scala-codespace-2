@@ -61,6 +61,19 @@ sealed trait MyList[+X] {
   }
 
 
+  def map1[Y](f: X => Y): MyList[Y] = {
+    @tailrec
+    def forward(rest:MyList[X],processed:MyList[Y],f:X=>Y):MyList[Y]=
+    {
+      rest match {
+        case MyNil => processed.reverse()
+        case MyCons(h,t) => forward(t,f(h)::processed,f)
+      }
+    }
+    forward(this,MyNil,f)
+  }
+
+
   def flatMap[Y](f: X => MyList[Y]): MyList[Y] =
   {
 
@@ -77,6 +90,33 @@ sealed trait MyList[+X] {
     flatMapT(f,this,MyNil)
   }
 
+  //  (1,2) flatMap (x -> MyList(x,x)) => (1,1,2,2)
+  def flatMap1[Y](f: X => MyList[Y]): MyList[Y] =
+  {
+
+    @tailrec
+    def loop(rest:MyList[X],
+             currentRest:MyList[Y],
+             currentRev:MyList[Y],
+             result: MyList[Y]):MyList[Y] =
+    {
+      currentRest match {
+        case MyCons(h,t) => loop(rest,t,h::currentRev,result)
+        case MyNil => currentRev match {
+          case MyCons(h,t) => loop(rest,currentRest,t,h::result)
+          case MyNil => rest match {
+            case MyCons(h,t) => loop(t,f(h),MyNil,result)
+            case MyNil => result
+          }
+        }
+      }
+    }
+
+    loop(this,MyNil,MyNil,MyNil)
+
+  }
+
+
   def foldRight[S](z: S)(op: (X, S) => S): S =
     this match {
       case MyCons(h, t) => op(h, t.foldRight(z)(op))
@@ -84,29 +124,69 @@ sealed trait MyList[+X] {
     }
 
   def append[Y >: X](x: Y): MyList[Y] = {
-    if (x == MyNil) this
-    else
       this match {
         case MyNil => x :: MyNil
         case MyCons(h, t) => h :: t.append(x)
       }
   }
 
+
   def appendList[Y >: X](x: MyList[Y]): MyList[Y] =
   {
+
+    @tailrec
+    def forward(revFrs:MyList[X],revFrsRest:MyList[X],snd:MyList[Y]):MyList[Y] =
+      {
+        //Nil, (1,2), (3,4,5)
+        revFrsRest match {
+          case MyNil => // (2,1) (3,4,5)
+                        back(revFrs,snd)
+          case MyCons(h,t) => forward(h::revFrs,t,snd)
+        }
+
+      }
+
+    @tailrec
+    def back(revFrs:MyList[X],snd:MyList[Y]):MyList[Y] =
+    {
+      // (2,1) (3,4,5)
+      revFrs match {
+        case MyNil => snd
+        case MyCons(h,t) => // 3,4,5,2,1
+                           back(t,h::snd)
+      }
+    }
+
+    //TODO: It is possiblt to eliminate reverse ?
+    forward(MyNil,this,x).reverse()
+
+    /*
+    // MyList(1,2).append(MyList(3,4,5)) = MyList(1,2,3,4,5)
+    //
+    *.
     this match {
       case MyNil => x
         // BAD !!!!
         //TODO implement effective
       case MyCons(h,t) => append(h).appendList(t)
+      // n + (n+1) + (n+2) + ... (n+k) ~  O(n^2)
     }
+    */
+
   }
+
+  def prepend[Y>:X](x: Y): MyList[Y] =
+  {
+    x::this
+  }
+
 
   // (l) <:  (l append x)
   // tail(l) <: l
 
 
   def reverse(): MyList[X] = {
+    @tailrec
     def rev1(result: MyList[X], remain: MyList[X]): MyList[X] = {
       remain match {
         case MyNil => result
@@ -118,7 +198,7 @@ sealed trait MyList[+X] {
 
 
 
-  def doWhile(p: Unit => Boolean)(f: X=>Unit): Unit =
+  def doWhile(p: X => Boolean)(f: X=>Unit): Unit =
   {
     this match {
       case MyCons(h,t) => if (p(h)) {
