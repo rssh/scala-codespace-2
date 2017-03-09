@@ -1,8 +1,14 @@
 package example
 
+
+//TODO:
+// 1. fractional
+// 2. fluent syntax:  1 + I*5
+// 3. module [abs] - we need some method for this.
+// 4. // ro - representatin
 case class ComplexNumber(val a: Int, b: Int)
 
-trait ComplexNumeric extends Numeric[ComplexNumber] {
+object ComplexNumeric extends Numeric[ComplexNumber] {
 
   override def plus(x: ComplexNumber, y: ComplexNumber): ComplexNumber =
     ComplexNumber(x.a + y.a, x.b + y.b)
@@ -41,7 +47,18 @@ trait ComplexNumeric extends Numeric[ComplexNumber] {
 
 object ImplicitHolder {
 
-  implicit object ComplexNumberNumeric extends ComplexNumeric
+
+  implicit def mkNumericOps(x:ComplexNumber): ComplexNumeric.Ops =
+    ComplexNumeric.mkNumericOps(x)
+
+  implicit def int2ComplexOps(x:Int):ComplexNumeric.Ops =
+    mkNumericOps(x)
+       //mkNumericOps(ComplexNumber(x,0))
+
+  implicit def int2Complex(x:Int):ComplexNumber =
+    ComplexNumber(x,0)
+
+  // Ops:  + (rhs:T):T
 
 }
 
