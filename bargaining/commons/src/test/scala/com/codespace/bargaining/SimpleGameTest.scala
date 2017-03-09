@@ -6,7 +6,7 @@ class SimpleGameTest extends FunSuite
 {
 
   test("simple game")  {
-    val runner = new TestRunner
+    val runner = new GameRunner
     val a = new TestAgent
     val b = new TestAgent
     val result = runner.play(a,b,10.0)
