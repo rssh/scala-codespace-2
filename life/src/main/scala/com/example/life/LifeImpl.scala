@@ -2,7 +2,7 @@ package com.example.life
 
 class LifeImpl extends Life {
 
-  case class FieldImpl(v: Set[Point], val xMax:Int, val yMax:Int) extends Field
+  class FieldImpl(v: Set[Point], val xMax:Int, val yMax:Int) extends Field
   {
 
 
@@ -55,7 +55,7 @@ class LifeImpl extends Life {
     }
 
     def stringState(): String = {
-      println(s"printState: v=${v}")
+
       def printCell(p: Point, isAlive: Boolean, sb:StringBuilder): Unit = {
         sb.append(if (isAlive) "X" else " ")
         if (p.y == yMax - 1) sb.append("\n")
@@ -68,8 +68,21 @@ class LifeImpl extends Life {
         printCell(p,isAlive(p),sb)
       }
 
-
       sb.toString()
+    }
+
+    override def toString: String = {
+      super.toString + ":v="+ v.toString()
+    }
+
+  }
+
+  trait DebugField extends Field
+  {
+
+    abstract override def stringState(): String = {
+      Console.println(s"stringState, this=${this}")
+      super.stringState()
     }
 
   }
@@ -81,7 +94,9 @@ class LifeImpl extends Life {
                p=> p.x < maxX && p.x >= 0 &&
                    p.y < maxY && p.y >= 0
     ),"exists fields")
-    FieldImpl(liveCells,maxX,maxY)
+    new FieldImpl(liveCells,maxX,maxY) with DebugField
   }
+
+
 
 }
