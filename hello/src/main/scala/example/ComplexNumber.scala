@@ -1,14 +1,19 @@
 package example
 
+import scala.language.implicitConversions
 
-//TODO:
-// 1. fractional
-// 2. fluent syntax:  1 + I*5
-// 3. module [abs] - we need some method for this.
-// 4. // ro - representatin
-case class ComplexNumber(val a: Int, b: Int)
+object I {
+  def *(b: Int): ComplexNumber =
+    ComplexNumber(0, b)
+}
 
-object ComplexNumeric extends Numeric[ComplexNumber] {
+case class ComplexNumber(val a: Int, b: Int) {
+
+  def mod(): Double =
+    Math.sqrt(a * a + b * b)
+}
+
+object ComplexNumeric extends Fractional[ComplexNumber] {
 
   override def plus(x: ComplexNumber, y: ComplexNumber): ComplexNumber =
     ComplexNumber(x.a + y.a, x.b + y.b)
@@ -18,6 +23,11 @@ object ComplexNumeric extends Numeric[ComplexNumber] {
 
   override def times(x: ComplexNumber, y: ComplexNumber): ComplexNumber =
     ComplexNumber((x.a * y.a) - (x.b * y.b), (x.a * y.b) + (x.b * y.a))
+
+  override def div(x: ComplexNumber, y: ComplexNumber): ComplexNumber =
+    ComplexNumber(
+      (x.a * y.a + x.b * y.b) / (y.a * y.a + y.b * y.b),
+      (x.b * y.a - x.a * y.b) / (y.a * y.a + y.b * y.b))
 
   override def negate(x: ComplexNumber): ComplexNumber =
     minus(ComplexNumber(0, 0), x)
@@ -44,23 +54,17 @@ object ComplexNumeric extends Numeric[ComplexNumber] {
     }
 }
 
-
 object ImplicitHolder {
 
-
-  implicit def mkNumericOps(x:ComplexNumber): ComplexNumeric.Ops =
+  implicit def mkNumericOps(x: ComplexNumber): ComplexNumeric.Ops =
     ComplexNumeric.mkNumericOps(x)
 
-  implicit def int2ComplexOps(x:Int):ComplexNumeric.Ops =
+  implicit def int2ComplexOps(x: Int): ComplexNumeric.Ops =
     mkNumericOps(x)
-       //mkNumericOps(ComplexNumber(x,0))
+  //mkNumericOps(ComplexNumber(x,0))
 
-  implicit def int2Complex(x:Int):ComplexNumber =
-    ComplexNumber(x,0)
+  implicit def int2Complex(x: Int): ComplexNumber =
+    ComplexNumber(x, 0)
 
   // Ops:  + (rhs:T):T
-
 }
-
-
-
