@@ -3,17 +3,20 @@ package example
 import scala.language.implicitConversions
 
 object I {
+
   def *(b: Int): ComplexNumber =
     ComplexNumber(0, b)
+
 }
 
 case class ComplexNumber(val a: Int, b: Int) {
 
   def mod(): Double =
     Math.sqrt(a * a + b * b)
+
 }
 
-object ComplexNumeric extends Fractional[ComplexNumber] {
+object ComplexNumeric extends Fractional[ComplexNumber] with Ordering[ComplexNumber] {
 
   override def plus(x: ComplexNumber, y: ComplexNumber): ComplexNumber =
     ComplexNumber(x.a + y.a, x.b + y.b)
@@ -36,25 +39,34 @@ object ComplexNumeric extends Fractional[ComplexNumber] {
     ComplexNumber(x, 0)
 
   override def toInt(x: ComplexNumber): Int =
-    x.a
+    x.mod().toInt
 
   override def toLong(x: ComplexNumber): Long =
-    x.a.toLong
+    x.mod().toLong
 
   override def toFloat(x: ComplexNumber): Float =
-    x.a.toFloat
+    x.mod().toFloat
 
   override def toDouble(x: ComplexNumber): Double =
-    x.a.toDouble
+    x.mod()
 
-  override def compare(x: ComplexNumber, y: ComplexNumber): Int =
-    x match {
-      case ComplexNumber(y.a, y.b) => 0
-      case _ => 1
-    }
+
+  //  x == x
+  //  x <= y & y <= z => x <= z
+  //  x < y => ~ (y < x)
+  override def compare(x: ComplexNumber, y: ComplexNumber): Int = {
+    val ca = x.a compare y.a
+    if (ca != 0)
+      ca
+    else x.b compare y.b
+  }
 }
 
-object ImplicitHolder {
+object ComplexNumber {
+
+  implicit def mkOrderingOps(x: ComplexNumber): Ordering[ComplexNumber]#Ops  = {
+     ComplexNumeric.mkOrderingOps(x)
+  }
 
   implicit def mkNumericOps(x: ComplexNumber): ComplexNumeric.Ops =
     ComplexNumeric.mkNumericOps(x)

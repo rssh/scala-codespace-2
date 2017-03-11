@@ -1,7 +1,7 @@
 
 import example._
 
-import example.ImplicitHolder._
+//import example.ImplicitHolder._
 
 val x = ComplexNumber(1,0)
 val y = ComplexNumber(2,9)
@@ -12,4 +12,8 @@ x + y
 
 1 + x
 
-x + 1
+  import ComplexNumber._
+
+  (x + 1) <= (x + 2)
+
+val obj: ComplexNumber.type = ComplexNumber
