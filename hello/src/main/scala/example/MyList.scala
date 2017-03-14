@@ -242,7 +242,6 @@ object MyList
   def apply[T](xs: T* ): MyList[T] =
     {
       //val (a,b) = a->b
-      println(xs.getClass)
 
 
       xs match {

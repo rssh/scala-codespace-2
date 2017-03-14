@@ -1,8 +1,10 @@
 package example
 
 import org.scalatest._
+import scala.util.Try
 
 class ScopeSpec extends FlatSpec with Matchers {
+
   "Scope" should "defer computations" in {
     class GoDeferExample {
       var out: StringBuilder = new StringBuilder
@@ -21,4 +23,19 @@ class ScopeSpec extends FlatSpec with Matchers {
     val ex = new GoDeferExample
     assert("1324" == ex.out.toString())
   }
+
+  "Scope" should "defer computations when exception" in {
+      var out: StringBuilder = new StringBuilder
+      val r = Try {
+       Scoped { scope =>
+        out.append("(")
+        scope.deferr{ out.append(")") }
+        throw new IllegalStateException("QQQ") 
+        out.append("[")
+        scope.deferr{ out.append("]") }
+       }
+      }
+     assert(out.toString == "()" )
+  }
+
 }
