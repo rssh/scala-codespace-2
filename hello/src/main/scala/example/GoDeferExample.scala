@@ -1,29 +1,25 @@
 package example
 
-import java.io.FileInputStream
+class Scope {
 
-class Scope
-{
-  def deferr(block: =>Unit) = ???
-}
+  private var effects: Array[() => Unit] = Array()
 
-object Scoped
-{
-
-  def apply[A](f: Scope=>A): A = ???
-
-}
-
-class GoDeferExample {
-
-
-
-  Scoped{ scope =>
-    val f1 = new FileInputStream("f1")
-    scope.deferr{ f1.close() }
-    val f2 = new FileInputStream("f2")
-    scope.deferr{ f2.close() }
+  def runEffects(): Unit = {
+    effects.foreach((f) => f())
   }
 
+  def deferr(block: => Unit): Unit = {
+    this.effects = effects ++ Array(block _)
+  }
+}
 
+object Scoped {
+
+  def apply[A](f: Scope => A): A = {
+    val scope = new Scope
+    val result = f(scope)
+
+    scope.runEffects()
+    result
+  }
 }
