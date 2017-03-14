@@ -9,7 +9,7 @@ class Scope {
       try {
         f()
       } catch {
-        case e: Exception => println(e.printStackTrace())
+        case e: Exception => e.printStackTrace()
       }
     })
   }
