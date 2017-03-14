@@ -1,9 +1,23 @@
 import scala.concurrent.Future
+import scala.util.Random
 
-trait VoteApi
+
+class VoteApi
 {
 
-  def vote(name:String,message:String):Future[Boolean] = ???
+
+  val random = new Random(1)
+
+  def vote(name:String,message:String):Future[Boolean] =
+  {
+    // submit task to execution context
+    Future{ random.nextBoolean() }
+
+    // return successful in this thread
+    //Future successful random.nextBoolean()
+
+    //Future failed new IllegalStateException("AAA")
+  }
 
 
 }
@@ -12,9 +26,10 @@ class MyVoteUsage
 {
 
 
-  def max(names:Seq[String], message:String,voteApi: VoteApi):Future[Boolean] = {
+  def maxVote(names:Seq[String], message:String,voteApi: VoteApi):Future[Boolean] = {
    ???
   }
+
 
   def consensus(names:List[String],voteApi:VoteApi): Future[Boolean] = ???
 
