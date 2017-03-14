@@ -9,7 +9,7 @@ class Scope {
       try {
         f()
       } catch {
-        case _: Exception =>
+        case e: Exception => println(e.printStackTrace())
       }
     })
   }
@@ -25,10 +25,7 @@ object Scoped {
     val scope = new Scope
     val result = try {
       f(scope)
-    } catch {
-      case e: Exception => throw e;
-    }
-    finally {
+    } finally {
       scope.runEffects()
     }
 
