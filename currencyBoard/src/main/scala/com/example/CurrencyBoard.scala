@@ -1,7 +1,7 @@
 package com.example
 
-import scala.concurrent.Future
-
+import scala.concurrent.{Await, Future}
+import scala.concurrent.duration._
 
 case class Money(amount: BigDecimal,
                  currency: Symbol)
@@ -29,6 +29,21 @@ trait CurrencyBoard {
 
 object X
 {
+
+  def printCurrentData(cb:CurrencyBoard): Unit =
+  {
+    val f:Future[String] = for{r <- cb.rates()
+                symbols <- cb.baseSymbols()
+               } yield {
+       s"""symbols: $symbols
+           rates: $r
+        """
+    }
+    //cb.rates().flatMap{ r => cb.baseSymbols.map{ s => s":$s" }}
+
+    val message = Await.result(f, 1 minute)
+    Console.println(message)
+  }
 
   val xPortfilio = List(1.0 ->'USD,1.0->'EUR,300.0 ->'VON, 0.4->'BTC) map {
     case (x,currency) => Money(x,currency)
