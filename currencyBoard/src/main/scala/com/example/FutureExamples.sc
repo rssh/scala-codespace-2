@@ -20,11 +20,6 @@ val fR = f.recover {
   case _ => 2
 }
 
+val fSuccess = Future successful 1
 
-System.out.println("after f creation")
-
-val f1 = f map ( _ + 1)
-
-val f2 = f map ( _ + 2)
-
-val x:Try[Int] = Try(Await.result(f1, 1.minute))
+fSuccess.onComplete(System.out.println)

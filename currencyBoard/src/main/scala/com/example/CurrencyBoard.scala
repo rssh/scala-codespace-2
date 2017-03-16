@@ -2,6 +2,8 @@ package com.example
 
 import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext.Implicits.global
+
 
 case class Money(amount: BigDecimal,
                  currency: Symbol)
@@ -54,9 +56,11 @@ object X
   {
     val state: Future[Either[String,Money]] = Future successful Right(Money(0.0,'HRN))
     xPortfilio.foldLeft(state){ (sFuture,eFuture) =>
-      for( sE <- sFuture;
-           eE <- eFuture;
-           nE <- eitherToHrn(eE,currencyBoard)) yield eitherSum(sE,nE)
+      ???
+      //
+      //for( sE <- sFuture;
+      //     eE <- eFuture;
+      //     nE <- eitherToHrn(eE,currencyBoard)) yield eitherSum(sE,nE)
     }
   }
 

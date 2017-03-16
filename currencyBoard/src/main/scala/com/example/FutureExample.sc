@@ -1,11 +1,18 @@
-import scala.concurrent.Future
-import scala.util.Random
+import com.example._
+
+import java.util.concurrent.Executors
+import java.util.concurrent.atomic.{AtomicInteger, AtomicReference}
+
+import scala.concurrent.{Future, Promise}
+import scala.util.{Random, Success, Try}
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration.FiniteDuration
 
 
 class VoteApi
 {
 
+  
 
   val random = new Random(1)
 
@@ -27,8 +34,48 @@ class VoteApi
 object MyVoteUsage
 {
 
+  def firstVoteWithinTimeout()= ???
 
-  def firstVote(names:Seq[String], message:String, voteApi:VoteApi):Future[Option[Boolean]] = ???
+  def firstVote(names:Seq[String], message:String, voteApi:VoteApi):Future[Option[Boolean]] =
+  {
+    val votes: Seq[Future[Boolean]] = names map (name => voteApi.vote(name, message))
+
+    val promise = Promise[Option[Boolean]]()
+
+    votes.foreach{ f =>
+      f.onComplete {
+        r => if (!promise.isCompleted)
+          promise.tryComplete(r.map(x => Option(x))) }
+    }
+
+    promise.future
+  }
+
+
+  def nVotes(names:Seq[String], message:String, voteApi: VoteApi, timeout: FiniteDuration):Future[Int] = {
+
+    val nSuccesses = new AtomicInteger(0)
+    val nCompleted = new AtomicInteger(0)
+    val scheduler = Executors.newSingleThreadScheduledExecutor()
+    val p = Promise[Int]()
+
+    val votes: Seq[Future[Boolean]] = names map (name => voteApi.vote(name, message) withTimeout timeout)
+    votes.foreach {
+      f => f.onComplete { t: Try[Boolean] =>
+        t match {
+          case Success(r) => nSuccesses.incrementAndGet()
+          case _ =>
+        }
+        val n = nCompleted.incrementAndGet()
+        if (n == names.size) {
+          p.trySuccess(nSuccesses.get())
+        }
+      }
+    }
+
+    p.future
+
+  }
 
   def maxVote(names:Seq[String], message:String,voteApi: VoteApi):Future[Option[Boolean]] = {
    val fseq:Future[Seq[Boolean]] = futureSequence(names map( name => voteApi.vote(name,message)))

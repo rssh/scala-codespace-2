@@ -6,6 +6,7 @@ import java.util.concurrent.{Executors, TimeUnit}
 import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.{Future, Promise}
 import scala.util.Failure
+import scala.concurrent.ExecutionContext.Implicits.global
 
 val p = Promise[Int]()
 
@@ -31,6 +32,8 @@ def withTimeout[A](f:Future[A], timeout:FiniteDuration):Future[A] = {
     timeout.toMillis,
     TimeUnit.MILLISECONDS
   )
+  //promise.completeWith(f)
+
   f.onComplete{ r =>
     promise.tryComplete(r)
     scheduler.shutdownNow()

@@ -2,6 +2,7 @@ package com.example1
 
 import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext.Implicits.global
 
 case class Task[A](fex:Future[Either[String,A]])
 {
