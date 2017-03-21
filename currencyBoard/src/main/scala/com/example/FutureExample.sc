@@ -36,7 +36,7 @@ object MyVoteUsage
 
   def firstVoteWithinTimeout()= ???
 
-  def firstVote(names:Seq[String], message:String, voteApi:VoteApi):Future[Option[Boolean]] =
+  def firstSuccessVote(names:Seq[String], message:String, voteApi:VoteApi):Future[Option[Boolean]] =
   {
     val votes: Seq[Future[Boolean]] = names map (name => voteApi.vote(name, message))
 
@@ -44,9 +44,10 @@ object MyVoteUsage
 
     votes.foreach{ f =>
       f.onComplete {
-        r => if (!promise.isCompleted)
-          promise.tryComplete(r.map(x => Option(x))) }
-    }
+        case Success(r) => if (!promise.isCompleted)
+                             promise.trySuccess(Some(r))
+        case _ => // TODO: log ?
+     }
 
     promise.future
   }

@@ -34,7 +34,8 @@ class PhoneCode extends CharsEncoding {
   private val phoneNumberListFile = List("test.t")
   val dictionary: List[String] = loadDictionary(dictionaryFile)
   val phoneNumberList: List[String] = loadDictionary(phoneNumberListFile)
-  def wordToDigits(word: String): Integer = {
+
+  def wordToDigits(word: String): String = {
     //    word.filter(_.isLetter)
     //      .map{ char => charsToDigits(char).toString}.mkString("").toInt
     val len = word.length - 1
@@ -42,7 +43,7 @@ class PhoneCode extends CharsEncoding {
       .zipWithIndex
       .map { case (char, ind) => charsToDigits(char) * math.pow(10, len - ind).toInt }
       .sum
-  }
+  }.toString
 
   def encodePhoneNumber(phoneNumber: String): List[String] = ???
 //  {
@@ -52,7 +53,19 @@ class PhoneCode extends CharsEncoding {
 //    }
 //  }
 
-  val dictionaryMapping: Map[String, String] = dictionary.map(w => wordToDigits(w).toString -> w).toMap
+  //val dictionaryMapping: Map[String, String] = dictionary.map(w => wordToDigits(w).toString -> w).toMap
+
+  val dictionaryMapping: Map[String, Seq[String]] = {
+
+    dictionary.groupBy(wordToDigits(_))
+
+    /*
+    val grouped = dictionary.map(
+      w => wordToDigits(w) -> w
+    ).groupBy { case (d, w) => d }
+    grouped.mapValues(_.map{case (d,w) => w })
+    */
+  }
 
 }
 
