@@ -24,7 +24,6 @@ trait CharsEncoding {
     (group, digit) <- chars.zipWithIndex ++ chars.map(_.toUpperCase).zipWithIndex
     letter <- group
   } yield letter -> digit).toMap
-  val digitsToChars: Map[Int, Char] = charsToDigits.map(_.swap)
 }
 
 class PhoneCode extends CharsEncoding {
@@ -57,7 +56,7 @@ class PhoneCode extends CharsEncoding {
 
   val dictionaryMapping: Map[String, Seq[String]] = {
 
-    dictionary.groupBy(wordToDigits(_))
+    dictionary.groupBy(wordToDigits)
 
     /*
     val grouped = dictionary.map(
