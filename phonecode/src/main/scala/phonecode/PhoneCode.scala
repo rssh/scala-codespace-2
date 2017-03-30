@@ -1,7 +1,7 @@
 package phonecode
 
 /*
-* 1. Cleanup phone code (remove slash, etc).
+* 1. Cleanup phone code (remove slashes, dashes, etc).
 * 2. Load dictionary from a file (alphabetically sorted).
 * 3. Find each possible encoding
 *
@@ -10,14 +10,18 @@ package phonecode
 * - Leading non-letters do not occur in the dictionary
 * - Encodings of phone numbers can consist of a single word or of multiple words separated by spaces.
 * - if at a particular point no word at all from the dictionary can be inserted, a single digit from the phone number can be copied to the encoding instead.
-* - Two subsequent digits are never allowed
+* - two subsequent digits are never allowed
+* - digit can be used only if there is no word in the dictionary that can be used in the partial encoding starting at this character
 * */
 
 //object PhoneCodeObj {
 //  def main(args: Array[String]): Unit = {
 //    require(len(args) == 2, "Specify dictionary and phone code files only.")
+// TODO: iterate over provided list of phone numbers and print in format `phoneNumber: encoding` for each encoding
 //  }
 //}
+
+
 trait CharsEncoding {
   private val chars: Array[String] = Array("e", "jnq", "rwx", "dsy", "ft", "am", "civ", "bku", "lop", "ghz")
   val charsToDigits: Map[Char, Int] = (for {
@@ -34,76 +38,61 @@ class PhoneCode extends CharsEncoding {
   val dictionary: List[String] = loadDictionary(dictionaryFile)
   val phoneNumberList: List[String] = loadDictionary(phoneNumberListFile)
 
-  def wordToDigits(word: String): String = {
-    //    word.filter(_.isLetter)
-    //      .map{ char => charsToDigits(char).toString}.mkString("").toInt
-    val len = word.length - 1
-    word.filter(_.isLetter)
-      .zipWithIndex
-      .map { case (char, ind) => charsToDigits(char) * math.pow(10, len - ind).toInt }
-      .sum
-  }.toString
+  def wordToDigits(word: String): String = //{
+        word.filter(_.isLetter)
+          .map{ char => charsToDigits(char).toString}.mkString("")
+//    val len = word.filter(_.isLetter).length - 1
+//    word.filter(_.isLetter)
+//      .zipWithIndex
+//      .map { case (char, ind) => charsToDigits(char) * math.pow(10, len - ind).toInt }
+//      .sum
+//  }.toString
 
-  def encodePhoneNumber(phoneNumber: String): List[String] = ???
-//  {
-//    val purePhoneNumber = phoneNumber.filter(_.isDigit)
-//    def encodeNum(num: String): List[String] = {
-//      ???
-//    }
-//  }
+  val dictionaryMapping: Map[String, Seq[String]] = dictionary.groupBy(wordToDigits)
 
-  //val dictionaryMapping: Map[String, String] = dictionary.map(w => wordToDigits(w).toString -> w).toMap
+  def encodePhoneNumber(fullPhoneNumber: String): Set[String] = {
+//    println
+//    println(s"Encode phone number: $fullPhoneNumber")
+    val purePhoneNumber = fullPhoneNumber.filter(_.isDigit)
 
-  val dictionaryMapping: Map[String, Seq[String]] = {
-
-    dictionary.groupBy(wordToDigits)
-
-    /*
-    val grouped = dictionary.map(
-      w => wordToDigits(w) -> w
-    ).groupBy { case (d, w) => d }
-    grouped.mapValues(_.map{case (d,w) => w })
-    */
-  }
-
-}
-
-
-/*
-* def encodePhoneNumber(fullPhoneNumber: String): List[String] = {
-  val purePhoneNumber = fullPhoneNumber.filter(_.isDigit)
-
-  def numberCombinations(
-                          phoneNumber: String,
-                          phrase: List[String],
-                          digitUnused: Boolean = true,
-                          break: Boolean = false
-                        ): List[String] = {
-    if (break) List("")
-    else {
-      (for {
-        i <- 0 to phoneNumber.length
-        (first, last) = phoneNumber.splitAt(i)
-        word = phoneCode.dictionaryMapping.get(first)
-        //      word = phoneCode.dictionaryMapping.getOrElse(first, "")
-        //      if word.length > 0
-        if word.isDefined ||
-          word.isEmpty && first.length == 1 && digitUnused ||
-          word.isEmpty && last.length == 1 && digitUnused
-      } yield {
-//        println(word)
-                numberCombinations(last, phrase ++ word)
-//        word match {
-//          case Some(w) => numberCombinations(last, phrase + w)
-//          case None if digitUnused & first.length == 1 => numberCombinations(last, phrase + first, digitUnused = false)
-//          case None if digitUnused & last.length == 1 => phrase + last
-//          case None => phrase
-//        }
-      }).flatten.toList
+    def generateWord(part: String, prevDigit: Boolean): Seq[String] = {
+      dictionaryMapping.getOrElse(part, Seq()) //get(part).getOrElse(Seq())
     }
-  }
 
-  numberCombinations(purePhoneNumber, List[String]())
+    val lengths = dictionaryMapping.keys.map(_.length)
+    val minLen: Int = lengths.min
+    val maxLen: Int = lengths.max
+    //val maxLen: = dictionaryMapping.keys.maxBy(_.length)
+
+    def numberCombinations(
+      rest: String,
+      phrase: String,
+      prevDigit: Boolean
+    ): Seq[String] = {
+//      println(s"Rest phrase: $rest")
+      if (!rest.isEmpty) {
+
+        val planePhrase = for {
+          i <- minLen to maxLen
+          (first, next) = rest.splitAt(i)
+          w <- generateWord(first, prevDigit)
+          x <- numberCombinations(next, phrase + " " + w, false)
+        } yield x
+//        println(s"  planePhrase: $planePhrase")
+
+        val dgtPhrase: Seq[String] = {
+          if (prevDigit || !planePhrase.isEmpty) Seq()
+          else {
+            numberCombinations(rest.tail, phrase + " " + rest.head, true)
+          }
+        }
+//        println(s"  dgtPhrase: $dgtPhrase")
+
+        planePhrase ++ dgtPhrase
+      } else Seq(phrase)
+    }
+
+    numberCombinations(purePhoneNumber, "", false)
+  }.map(_.trim).toSet
+
 }
-
-* */
