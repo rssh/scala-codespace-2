@@ -43,6 +43,7 @@ trait FilesReader {
 
   def using[T <: { def close() }, R](resource: T)(func: T => R): R =
     {
+      import scala.language.reflectiveCalls
       try {
         func(resource)
       } finally {
