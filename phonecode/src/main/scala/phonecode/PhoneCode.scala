@@ -17,22 +17,17 @@ package phonecode
 object PhoneCodeMain extends FilesReader {
   def main(args: Array[String]): Unit = {
     require(args.length == 2, "Specify dictionary and phone code files only.")
-    println("It's alive!")
     val dictionaryFilePath = args(0)
     val phoneNumberListPath = args(1)
 
-    //    println(s"dictionaryFilePath: $dictionaryFilePath")
-    //    println(s"phoneNumberListPath: $phoneNumberListPath")
-    //    println(classesDir)
     val phoneCode = new PhoneCode(dictionaryFilePath)
 
-    // TODO: iterate over provided list of phone numbers and print in format `phoneNumber: encoding` for each encoding
-    /*    val phoneNumberList = loadFileAsStream(phoneNumberListPath)
+    val phoneNumberList = scala.io.Source.fromFile(phoneNumberListPath).getLines()
     val result = for {
       phoneNumber <- phoneNumberList
       phoneMatch <- phoneCode.encodePhoneNumber(phoneNumber)
-    } yield phoneMatch
-    result foreach (println)*/
+    } yield (phoneNumber, phoneMatch)
+    result foreach { case (phone, matchedString) => println(s"$phone: $matchedString") }
   }
 }
 
@@ -60,27 +55,6 @@ trait FilesReader {
       source.getLines.toList
     }
   }
-
-  def loadFileAsStream(path: String): Iterator[String] = {
-    using(scala.io.Source.fromFile(path)) { source =>
-      source.getLines
-    }
-  }
-
-  //  def loadFileAsStream(dictionaryPath: String) = {
-  //  import java.io.FileNotFoundException
-  //    lazy val source = scala.io.Source.fromFile(dictionaryPath)
-  //    try {
-  //      source.getLines
-  //    } catch {
-  //      case e: FileNotFoundException => sys.error(s"Could not load word list, dictionary file not found")
-  //      case e: Exception =>
-  //        sys.error("Could not load word list: " + e)
-  //        throw e
-  //    } finally {
-  //      source.close()
-  //    }
-  //  }
 
 }
 
