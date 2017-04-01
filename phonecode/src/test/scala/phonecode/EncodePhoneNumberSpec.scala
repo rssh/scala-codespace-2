@@ -4,7 +4,7 @@ import org.scalatest._
 
 class EncodePhoneNumberSpec extends FlatSpec with Matchers with ResourceFilesReader {
 
-  val dictionaryResourcePath = resourceAsString(List("test.w")).getOrElse(throw new IllegalArgumentException)
+  private val dictionaryResourcePath = resourceAsString(List("test.w")).getOrElse(throw new IllegalArgumentException)
 
   val phoneCode = new PhoneCode(dictionaryResourcePath)
   import phoneCode._
