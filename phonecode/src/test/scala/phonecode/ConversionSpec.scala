@@ -2,9 +2,11 @@ package phonecode
 
 import org.scalatest._
 
-class ConversionSpec extends FlatSpec with Matchers {
+class ConversionSpec extends FlatSpec with Matchers with ResourceFilesReader {
 
-  val phoneCode = new PhoneCode
+  val dictionaryResourcePath = resourceAsString(List("test.w")).getOrElse(throw new IllegalArgumentException)
+
+  val phoneCode = new PhoneCode(dictionaryResourcePath)
   import phoneCode._
 
   "Map charsToDigits" should "for char `t` returns digit `4`" in {

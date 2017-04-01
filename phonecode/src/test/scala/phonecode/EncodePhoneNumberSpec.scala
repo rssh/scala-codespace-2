@@ -2,9 +2,11 @@ package phonecode
 
 import org.scalatest._
 
-class EncodePhoneNumberSpec extends FlatSpec with Matchers {
+class EncodePhoneNumberSpec extends FlatSpec with Matchers with ResourceFilesReader {
 
-  val phoneCode = new PhoneCode
+  val dictionaryResourcePath = resourceAsString(List("test.w")).getOrElse(throw new IllegalArgumentException)
+
+  val phoneCode = new PhoneCode(dictionaryResourcePath)
   import phoneCode._
 
   "encodePhoneNumber" should "encode `5624-82` to [mir Tor, Mix Tor]" in {

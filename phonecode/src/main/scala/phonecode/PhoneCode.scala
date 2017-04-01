@@ -14,13 +14,27 @@ package phonecode
 * - digit can be used only if there is no word in the dictionary that can be used in the partial encoding starting at this character
 * */
 
-//object PhoneCodeObj {
-//  def main(args: Array[String]): Unit = {
-//    require(len(args) == 2, "Specify dictionary and phone code files only.")
-// TODO: iterate over provided list of phone numbers and print in format `phoneNumber: encoding` for each encoding
-//  }
-//}
+object PhoneCodeMain extends FilesReader {
+  def main(args: Array[String]): Unit = {
+    require(args.length == 2, "Specify dictionary and phone code files only.")
+    println("It's alive!")
+    val dictionaryFilePath = args(0)
+    val phoneNumberListPath = args(1)
 
+    //    println(s"dictionaryFilePath: $dictionaryFilePath")
+    //    println(s"phoneNumberListPath: $phoneNumberListPath")
+    //    println(classesDir)
+    val phoneCode = new PhoneCode(dictionaryFilePath)
+
+    // TODO: iterate over provided list of phone numbers and print in format `phoneNumber: encoding` for each encoding
+    /*    val phoneNumberList = loadFileAsStream(phoneNumberListPath)
+    val result = for {
+      phoneNumber <- phoneNumberList
+      phoneMatch <- phoneCode.encodePhoneNumber(phoneNumber)
+    } yield phoneMatch
+    result foreach (println)*/
+  }
+}
 
 trait CharsEncoding {
   private val chars: Array[String] = Array("e", "jnq", "rwx", "dsy", "ft", "am", "civ", "bku", "lop", "ghz")
@@ -30,34 +44,73 @@ trait CharsEncoding {
   } yield letter -> digit).toMap
 }
 
-class PhoneCode extends CharsEncoding {
-  // TODO: program should start with the dictionary and phone codes list as arguments:
+trait FilesReader {
+
+  def using[T <: { def close() }, R](resource: T)(func: T => R): R =
+    {
+      try {
+        func(resource)
+      } finally {
+        if (resource != null) resource.close()
+      }
+    }
+
+  def loadDictionaryFile(dictionaryPath: String): List[String] = {
+    using(scala.io.Source.fromFile(dictionaryPath)) { source =>
+      source.getLines.toList
+    }
+  }
+
+  def loadFileAsStream(path: String): Iterator[String] = {
+    using(scala.io.Source.fromFile(path)) { source =>
+      source.getLines
+    }
+  }
+
+  //  def loadFileAsStream(dictionaryPath: String) = {
+  //  import java.io.FileNotFoundException
+  //    lazy val source = scala.io.Source.fromFile(dictionaryPath)
+  //    try {
+  //      source.getLines
+  //    } catch {
+  //      case e: FileNotFoundException => sys.error(s"Could not load word list, dictionary file not found")
+  //      case e: Exception =>
+  //        sys.error("Could not load word list: " + e)
+  //        throw e
+  //    } finally {
+  //      source.close()
+  //    }
+  //  }
+
+}
+
+class PhoneCode(dictionaryFile: String) extends CharsEncoding with FilesReader {
   // > phonecode test.w test.t
-  private val dictionaryFile = List("test.w")
-  private val phoneNumberListFile = List("test.t")
-  val dictionary: List[String] = loadDictionary(dictionaryFile)
-  val phoneNumberList: List[String] = loadDictionary(phoneNumberListFile)
-
-  def wordToDigits(word: String): String = //{
-        word.filter(_.isLetter)
-          .map{ char => charsToDigits(char).toString}.mkString("")
-//    val len = word.filter(_.isLetter).length - 1
-//    word.filter(_.isLetter)
-//      .zipWithIndex
-//      .map { case (char, ind) => charsToDigits(char) * math.pow(10, len - ind).toInt }
-//      .sum
-//  }.toString
-
+  //  println(getClass.getResource(".").toURI)
+  //  val dictionary: List[String] = loadDictionary(dictionaryFile)
+  val dictionary = loadDictionaryFile(dictionaryFile)
+  //  val phoneNumberList: List[String] = loadDictionary(phoneNumberListFile)
   val dictionaryMapping: Map[String, Seq[String]] = dictionary.groupBy(wordToDigits)
 
-  def encodePhoneNumber(fullPhoneNumber: String): Set[String] = {
-//    println
-//    println(s"Encode phone number: $fullPhoneNumber")
-    val purePhoneNumber = fullPhoneNumber.filter(_.isDigit)
+  //    val len = word.filter(_.isLetter).length - 1
+  //    word.filter(_.isLetter)
+  //      .zipWithIndex
+  //      .map { case (char, ind) => charsToDigits(char) * math.pow(10, len - ind).toInt }
+  //      .sum
+  //  }.toString
 
-    def generateWord(part: String, prevDigit: Boolean): Seq[String] = {
-      dictionaryMapping.getOrElse(part, Seq()) //get(part).getOrElse(Seq())
-    }
+  def wordToDigits(word: String): String = //{
+    word.filter(_.isLetter)
+      .map { char => charsToDigits(char).toString }.mkString("")
+
+  def generateWord(part: String, prevDigit: Boolean): Seq[String] = {
+    dictionaryMapping.getOrElse(part, Seq()) //get(part).getOrElse(Seq())
+  }
+
+  def encodePhoneNumber(fullPhoneNumber: String): Set[String] = {
+    //    println
+    //    println(s"Encode phone number: $fullPhoneNumber")
+    val purePhoneNumber = fullPhoneNumber.filter(_.isDigit)
 
     val lengths = dictionaryMapping.keys.map(_.length)
     val minLen: Int = lengths.min
@@ -69,7 +122,7 @@ class PhoneCode extends CharsEncoding {
       phrase: String,
       prevDigit: Boolean
     ): Seq[String] = {
-//      println(s"Rest phrase: $rest")
+      //      println(s"Rest phrase: $rest")
       if (!rest.isEmpty) {
 
         val planePhrase = for {
@@ -78,7 +131,7 @@ class PhoneCode extends CharsEncoding {
           w <- generateWord(first, prevDigit)
           x <- numberCombinations(next, phrase + " " + w, false)
         } yield x
-//        println(s"  planePhrase: $planePhrase")
+        //        println(s"  planePhrase: $planePhrase")
 
         val dgtPhrase: Seq[String] = {
           if (prevDigit || !planePhrase.isEmpty) Seq()
@@ -86,8 +139,7 @@ class PhoneCode extends CharsEncoding {
             numberCombinations(rest.tail, phrase + " " + rest.head, true)
           }
         }
-//        println(s"  dgtPhrase: $dgtPhrase")
-
+        //        println(s"  dgtPhrase: $dgtPhrase")
         planePhrase ++ dgtPhrase
       } else Seq(phrase)
     }
