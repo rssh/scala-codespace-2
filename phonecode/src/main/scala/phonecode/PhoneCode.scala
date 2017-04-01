@@ -1,7 +1,7 @@
 package phonecode
 
 /*
-* 1. Cleanup phone code (remove slashes, dashes, etc).
+* 1. Cleanup phone number (remove slashes, dashes, etc).
 * 2. Load dictionary from a file (alphabetically sorted).
 * 3. Find each possible encoding
 *
@@ -59,44 +59,29 @@ trait FilesReader {
 }
 
 class PhoneCode(dictionaryFile: String) extends CharsEncoding with FilesReader {
-  // > phonecode test.w test.t
-  //  println(getClass.getResource(".").toURI)
-  //  val dictionary: List[String] = loadDictionary(dictionaryFile)
   val dictionary = loadDictionaryFile(dictionaryFile)
-  //  val phoneNumberList: List[String] = loadDictionary(phoneNumberListFile)
   val dictionaryMapping: Map[String, Seq[String]] = dictionary.groupBy(wordToDigits)
 
-  //    val len = word.filter(_.isLetter).length - 1
-  //    word.filter(_.isLetter)
-  //      .zipWithIndex
-  //      .map { case (char, ind) => charsToDigits(char) * math.pow(10, len - ind).toInt }
-  //      .sum
-  //  }.toString
-
-  def wordToDigits(word: String): String = //{
+  def wordToDigits(word: String): String =
     word.filter(_.isLetter)
       .map { char => charsToDigits(char).toString }.mkString("")
 
   def generateWord(part: String, prevDigit: Boolean): Seq[String] = {
-    dictionaryMapping.getOrElse(part, Seq()) //get(part).getOrElse(Seq())
+    dictionaryMapping.getOrElse(part, Seq())
   }
 
   def encodePhoneNumber(fullPhoneNumber: String): Set[String] = {
-    //    println
-    //    println(s"Encode phone number: $fullPhoneNumber")
     val purePhoneNumber = fullPhoneNumber.filter(_.isDigit)
 
     val lengths = dictionaryMapping.keys.map(_.length)
     val minLen: Int = lengths.min
     val maxLen: Int = lengths.max
-    //val maxLen: = dictionaryMapping.keys.maxBy(_.length)
 
     def numberCombinations(
       rest: String,
       phrase: String,
       prevDigit: Boolean
     ): Seq[String] = {
-      //      println(s"Rest phrase: $rest")
       if (!rest.isEmpty) {
 
         val planePhrase = for {
@@ -105,7 +90,6 @@ class PhoneCode(dictionaryFile: String) extends CharsEncoding with FilesReader {
           w <- generateWord(first, prevDigit)
           x <- numberCombinations(next, phrase + " " + w, false)
         } yield x
-        //        println(s"  planePhrase: $planePhrase")
 
         val dgtPhrase: Seq[String] = {
           if (prevDigit || !planePhrase.isEmpty) Seq()
@@ -113,7 +97,6 @@ class PhoneCode(dictionaryFile: String) extends CharsEncoding with FilesReader {
             numberCombinations(rest.tail, phrase + " " + rest.head, true)
           }
         }
-        //        println(s"  dgtPhrase: $dgtPhrase")
         planePhrase ++ dgtPhrase
       } else Seq(phrase)
     }
