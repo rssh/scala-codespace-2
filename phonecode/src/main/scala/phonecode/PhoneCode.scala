@@ -59,7 +59,7 @@ trait FilesReader {
 }
 
 class PhoneCode(dictionaryFile: String) extends CharsEncoding with FilesReader {
-  val dictionary = loadDictionaryFile(dictionaryFile)
+  private val dictionary = loadDictionaryFile(dictionaryFile)
   val dictionaryMapping: Map[String, Seq[String]] = dictionary.groupBy(wordToDigits)
 
   def wordToDigits(word: String): String =
@@ -88,20 +88,20 @@ class PhoneCode(dictionaryFile: String) extends CharsEncoding with FilesReader {
           i <- minLen to maxLen
           (first, next) = rest.splitAt(i)
           w <- generateWord(first, prevDigit)
-          x <- numberCombinations(next, phrase + " " + w, false)
+          x <- numberCombinations(next, phrase + " " + w, prevDigit = false)
         } yield x
 
         val dgtPhrase: Seq[String] = {
-          if (prevDigit || !planePhrase.isEmpty) Seq()
+          if (prevDigit || planePhrase.nonEmpty) Seq()
           else {
-            numberCombinations(rest.tail, phrase + " " + rest.head, true)
+            numberCombinations(rest.tail, phrase + " " + rest.head, prevDigit = true)
           }
         }
         planePhrase ++ dgtPhrase
       } else Seq(phrase)
     }
 
-    numberCombinations(purePhoneNumber, "", false)
+    numberCombinations(purePhoneNumber, "", prevDigit = false)
   }.map(_.trim).toSet
 
 }
