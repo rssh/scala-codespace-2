@@ -1,30 +1,20 @@
-import akka.NotUsed
-import akka.actor.ActorSystem
-import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse}
-import akka.http.scaladsl.server.Directives
-import akka.stream.scaladsl.Flow
+import akka.http.scaladsl.server.{Directives, HttpApp}
 import common.Item
-
-import scala.io.StdIn
-import scala.concurrent.Future
-import akka.http.scaladsl.model.ws.{Message, TextMessage}
-import akka.stream._
-import akka.stream.scaladsl._
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import org.json4s.NoTypeHints
 import org.json4s.native.Serialization
 
 
-object Demo extends Directives with Json4sSupport {
-  implicit val system = ActorSystem("my-system")
+object Server extends HttpApp with Directives with Json4sSupport {
+  /*implicit val system = ActorSystem("my-system")
   implicit val execCtx = system.dispatcher
-  implicit val materializer = ActorMaterializer()
+  implicit val materializer = ActorMaterializer()*/
 
   implicit val serialization = Serialization
   implicit val defaultFormats = Serialization.formats(NoTypeHints)
 
-  val route =
+  def route() =
     path("hello") {
       get {
         complete(HttpResponse(200, entity = HttpEntity(
@@ -50,7 +40,7 @@ object Demo extends Directives with Json4sSupport {
         }
       }
 
-  def main(args: Array[String]): Unit = {
+  /*def main(args: Array[String]): Unit = {
     val (host, port) = ("localhost", 8080)
     val bindingFuture = Http().bindAndHandle(route, host, port)
 
@@ -64,5 +54,9 @@ object Demo extends Directives with Json4sSupport {
     bindingFuture
       .flatMap(_.unbind()) // trigger unbinding from the port
       .onComplete(_ => system.terminate()) // and shutdown when done
-  }
+  }*/
+}
+
+object Demo extends App {
+  Server.startServer("localhost", 8080)
 }

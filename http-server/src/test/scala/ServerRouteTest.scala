@@ -23,7 +23,7 @@ class RegisterParticipantTest extends WordSpec with Matchers with ScalatestRoute
   implicit val formats = DefaultFormats
   implicit val serialization = Serialization
 
-  val route = Demo.route
+  val route = Server.route()
 
   "The service" should {
     "handle GET request" in {
