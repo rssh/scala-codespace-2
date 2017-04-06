@@ -16,7 +16,7 @@ import org.json4s.NoTypeHints
 import org.json4s.native.Serialization
 
 
-object Demo extends App with Directives with Json4sSupport {
+object Demo extends Directives with Json4sSupport {
   implicit val system = ActorSystem("my-system")
   implicit val execCtx = system.dispatcher
   implicit val materializer = ActorMaterializer()
@@ -50,17 +50,19 @@ object Demo extends App with Directives with Json4sSupport {
         }
       }
 
-  val (host, port) = ("localhost", 8080)
-  val bindingFuture = Http().bindAndHandle(route, host, port)
+  def main(args: Array[String]): Unit = {
+    val (host, port) = ("localhost", 8080)
+    val bindingFuture = Http().bindAndHandle(route, host, port)
 
-  bindingFuture.onFailure {
-    case ex: Exception =>
-      println(s"$ex Failed to bind to $host:$port!")
+    bindingFuture.onFailure {
+      case ex: Exception =>
+        println(s"$ex Failed to bind to $host:$port!")
+    }
+
+    println(s"Server online at http://localhost:8080/\nPress RETURN to stop...")
+    StdIn.readLine() // let it run until user presses return
+    bindingFuture
+      .flatMap(_.unbind()) // trigger unbinding from the port
+      .onComplete(_ => system.terminate()) // and shutdown when done
   }
-
-  println(s"Server online at http://localhost:8080/\nPress RETURN to stop...")
-  StdIn.readLine() // let it run until user presses return
-  bindingFuture
-    .flatMap(_.unbind()) // trigger unbinding from the port
-    .onComplete(_ => system.terminate()) // and shutdown when done
 }

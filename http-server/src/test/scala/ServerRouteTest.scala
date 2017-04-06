@@ -26,13 +26,22 @@ class RegisterParticipantTest extends WordSpec with Matchers with ScalatestRoute
   val route = Demo.route
 
   "The service" should {
+    "handle GET request" in {
+      Get("/randomitem") ~> route ~> check {
+        response.status shouldEqual StatusCodes.OK
+        val jsResponse = responseAs[JValue]
+        jsResponse \ "name" shouldEqual JString("thing")
+        jsResponse \ "id" shouldEqual JInt(42)
+      }
+    }
+
     "handle POST request" in {
       val itemJs: JValue = ("name" -> "Hi") ~ ("id" -> 15)
       Post("/saveitem", itemJs) ~> route ~> check {
         response.status shouldEqual StatusCodes.OK
         val jsResponse = responseAs[JValue]
         jsResponse \ "name" shouldEqual JString("Hi")
-        jsResponse \ "id" shouldEqual JString("15")
+        jsResponse \ "id" shouldEqual JInt(15)
       }
     }
   }
