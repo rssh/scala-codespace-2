@@ -1,7 +1,7 @@
 import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity}
+import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse}
 import akka.http.scaladsl.server.Directives
 import akka.stream.scaladsl.Flow
 import common.Item
@@ -27,9 +27,9 @@ object Demo extends App with Directives with Json4sSupport {
   val route =
     path("hello") {
       get {
-        complete(HttpEntity(
+        complete(HttpResponse(200, entity = HttpEntity(
           ContentTypes.`text/html(UTF-8)`,
-          "<h1>Say hello to akka-http</h1>"))
+          "<h1>Say hello to akka-http</h1>")))
       }
     } ~
     path("randomitem") {
@@ -38,15 +38,17 @@ object Demo extends App with Directives with Json4sSupport {
         complete(Item("thing", 42))
       }
     } ~
-    path("saveitem") {
-      post {
-        // will unmarshal JSON to Item
-        entity(as[Item]) { item =>
-          println(s"Server saw Item : $item")
-          complete(item)
+      path("saveitem") {
+        println("inside saveitem")
+        post {
+          // will unmarshal JSON to Item
+          println("inside post")
+          entity(as[Item]) { item =>
+            println(s"Server saw Item : $item")
+            complete(item)
+          }
         }
       }
-    }
 
   val (host, port) = ("localhost", 8080)
   val bindingFuture = Http().bindAndHandle(route, host, port)
