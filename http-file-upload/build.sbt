@@ -10,6 +10,7 @@ lazy val commonSettings = Seq(
     "org.scalatest" %% "scalatest" % "3.0.1" % Test,
     "org.typelevel" %% "cats" % "0.9.0",
     "com.chuusai" %% "shapeless" % "2.3.2"
+
   )
 )
 
@@ -29,7 +30,8 @@ lazy val server = (project in file("server")).
       "com.typesafe.akka" %% "akka-persistence" % "2.4.17",
       "com.typesafe.akka" %% "akka-persistence-query-experimental" % "2.4.17",
        "io.circe" %% "circe-generic" % "0.7.0",
-       "io.circe" %% "circe-generic" % "0.7.0"
+       "io.circe" %% "circe-parser" % "0.7.0",
+       "de.heikoseeberger" %% "akka-http-circe" % "1.15.0"
     )
 )
 
